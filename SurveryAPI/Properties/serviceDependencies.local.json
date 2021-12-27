@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "secretStore": "LocalSecretsFile",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/mareldproject/databases/mareld",
+      "type": "mssql.azure",
+      "connectionId": "Mareld"
+    }
+  }
+}
