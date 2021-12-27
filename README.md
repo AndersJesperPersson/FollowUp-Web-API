@@ -1,0 +1,2 @@
+# Mareld
+The final project in my .net studies. I've chosen to develop a software application that aims to assist social workers in their follow-ups against customer. A web app where you can create templates for a survey. Further on the user can choose a date when the surveys is supposed to go out to customer. The software will also collect the answers and compile the result, that till be presented in a clean and nice UI.
