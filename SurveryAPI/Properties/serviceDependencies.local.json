@@ -5,6 +5,10 @@
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/mareldproject/databases/mareld",
       "type": "mssql.azure",
       "connectionId": "Mareld"
+    },
+    "mssql2": {
+      "type": "mssql.local",
+      "connectionId": "ConnectionStrings:SurveyAPIContext"
     }
   }
 }

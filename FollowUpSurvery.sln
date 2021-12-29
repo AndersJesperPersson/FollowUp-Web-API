@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurveyAPI", "SurveryAPI\SurveyAPI.csproj", "{55AE2DF4-DC43-4270-8B11-93E4B29E208B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurveyAPI", "SurveryAPI\SurveyAPI.csproj", "{55AE2DF4-DC43-4270-8B11-93E4B29E208B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Survey.ServiceLibrary", "DataAcess\Survey.ServiceLibrary.csproj", "{C76DF56C-58CA-498D-9B03-204915F34979}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{55AE2DF4-DC43-4270-8B11-93E4B29E208B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55AE2DF4-DC43-4270-8B11-93E4B29E208B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55AE2DF4-DC43-4270-8B11-93E4B29E208B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C76DF56C-58CA-498D-9B03-204915F34979}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C76DF56C-58CA-498D-9B03-204915F34979}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C76DF56C-58CA-498D-9B03-204915F34979}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C76DF56C-58CA-498D-9B03-204915F34979}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
