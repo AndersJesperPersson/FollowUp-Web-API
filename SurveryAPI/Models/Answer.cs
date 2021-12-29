@@ -11,6 +11,7 @@
     {
         [Key]
         public Guid Id { get; set; }
+        [Required]
         public string Reply { get; set; }
         public Question Question { get; set; }
     }

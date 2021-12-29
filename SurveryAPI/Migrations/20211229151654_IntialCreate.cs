@@ -10,7 +10,7 @@ namespace SurveyAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Missons",
+                name: "Missions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -23,7 +23,7 @@ namespace SurveyAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Missons", x => x.Id);
+                    table.PrimaryKey("PK_Missions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -56,9 +56,9 @@ namespace SurveyAPI.Migrations
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Employees_Missons_MissionId",
+                        name: "FK_Employees_Missions_MissionId",
                         column: x => x.MissionId,
-                        principalTable: "Missons",
+                        principalTable: "Missions",
                         principalColumn: "Id");
                 });
 
@@ -75,9 +75,9 @@ namespace SurveyAPI.Migrations
                 {
                     table.PrimaryKey("PK_Surveys", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Surveys_Missons_MissionId",
+                        name: "FK_Surveys_Missions_MissionId",
                         column: x => x.MissionId,
-                        principalTable: "Missons",
+                        principalTable: "Missions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -169,7 +169,7 @@ namespace SurveyAPI.Migrations
                 name: "Surveys");
 
             migrationBuilder.DropTable(
-                name: "Missons");
+                name: "Missions");
         }
     }
 }
