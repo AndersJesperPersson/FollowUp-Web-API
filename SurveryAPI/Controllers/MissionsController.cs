@@ -25,12 +25,14 @@ namespace SurveyAPI.Controllers
             _logger = logger;
         }
 
+
+        //TODO: Lägg in en begränsning på hur många objekt som hämtas åt gången. Ska inte kunna ta alla. 
         // GET: api/Missions
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Mission>>> GetMissons()
         {
             
-            return await _context.Missions.ToListAsync();
+            return await _context.Missions.Include("Surveys").Include("Employees").ToListAsync();
         }
 
         // GET: api/Missions/active

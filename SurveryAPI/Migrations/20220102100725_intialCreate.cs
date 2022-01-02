@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SurveyAPI.Migrations
 {
-    public partial class IntialCreate : Migration
+    public partial class intialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -35,6 +35,7 @@ namespace SurveyAPI.Migrations
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Salt = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LoggedIn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LoggedOut = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsLoggedIn = table.Column<bool>(type: "bit", nullable: false)
@@ -67,9 +68,9 @@ namespace SurveyAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsSent = table.Column<bool>(type: "bit", nullable: false)
+                    IsSent = table.Column<bool>(type: "bit", nullable: false),
+                    MissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -78,8 +79,7 @@ namespace SurveyAPI.Migrations
                         name: "FK_Surveys_Missions_MissionId",
                         column: x => x.MissionId,
                         principalTable: "Missions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -105,6 +105,7 @@ namespace SurveyAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AnswerId = table.Column<int>(type: "int", nullable: false),
                     Reply = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SurveyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)

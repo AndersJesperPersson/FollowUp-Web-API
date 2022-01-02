@@ -21,18 +21,19 @@ namespace SurveyAPI.Controllers
             _context = context;
         }
 
+        //TODO: Ta troligtvis bort denna metod när du fått upp ett UI.
         // GET: api/Surveys
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Survey>>> GetSurveys()
         {
-            return await _context.Surveys.ToListAsync();
+            return await _context.Surveys.Include("Answers").Include("Questions").ToListAsync();
         }
 
         // GET: api/Surveys/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Survey>> GetSurvey(Guid id)
         {
-            var survey = await _context.Surveys.FindAsync(id);
+            var survey = await _context.Surveys.Include("Answers").Include("Questions").Where(x => x.Id == id).SingleOrDefaultAsync();
 
             if (survey == null)
             {

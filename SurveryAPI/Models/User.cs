@@ -11,10 +11,16 @@
     {
         [Key]
         public Guid Id { get; set; }
+        [Required]
         public string Username { get; set; }
+        [Required]
         public string Password { get; set; }    
         public string Salt { get; set; }
+        [Required]
         public string Email { get; set; }
+
+        [Phone]
+        public string Phone { get; set; }
         public DateTime LoggedIn { get; set; }
         public DateTime LoggedOut { get; set; }
         public bool IsLoggedIn { get; set; }

@@ -12,8 +12,8 @@ using SurveyAPI;
 namespace SurveyAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211229151654_IntialCreate")]
-    partial class IntialCreate
+    [Migration("20220102100725_intialCreate")]
+    partial class intialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,6 +29,9 @@ namespace SurveyAPI.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AnswerId")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
@@ -133,7 +136,7 @@ namespace SurveyAPI.Migrations
                     b.Property<bool>("IsSent")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("MissionId")
+                    b.Property<Guid?>("MissionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -163,6 +166,10 @@ namespace SurveyAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -210,20 +217,16 @@ namespace SurveyAPI.Migrations
 
             modelBuilder.Entity("SurveyAPI.Models.Survey", b =>
                 {
-                    b.HasOne("SurveyAPI.Models.Mission", "Mission")
-                        .WithMany("Survey")
-                        .HasForeignKey("MissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Mission");
+                    b.HasOne("SurveyAPI.Models.Mission", null)
+                        .WithMany("Surveys")
+                        .HasForeignKey("MissionId");
                 });
 
             modelBuilder.Entity("SurveyAPI.Models.Mission", b =>
                 {
                     b.Navigation("Employees");
 
-                    b.Navigation("Survey");
+                    b.Navigation("Surveys");
                 });
 
             modelBuilder.Entity("SurveyAPI.Models.Survey", b =>

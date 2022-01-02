@@ -70,7 +70,7 @@ namespace SurveyAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // POST: api/Answers
