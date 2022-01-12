@@ -15,16 +15,19 @@ namespace SurveyAPI.Controllers
     public class AnswersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
-        public AnswersController(ApplicationDbContext context)
+        private readonly ILogger<AnswersController> _logger;
+        public AnswersController(ApplicationDbContext context, ILogger<AnswersController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Answers
+        //TODO: Minska antalet som ges ut. 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Answer>>> GetAnswers()
         {
+            _logger.LogInformation("get all answers");
             return await _context.Answers.ToListAsync();
         }
 
@@ -36,9 +39,9 @@ namespace SurveyAPI.Controllers
 
             if (answer == null)
             {
+            _logger.LogWarning($"Answer with {id} could not be found.");
                 return NotFound();
             }
-
             return answer;
         }
 
@@ -49,6 +52,7 @@ namespace SurveyAPI.Controllers
         {
             if (id != answer.Id)
             {
+                _logger.LogWarning($"The Id:{id} didn´t match the Id of the object: {answer.Id}");
                 return BadRequest();
             }
 
@@ -62,6 +66,7 @@ namespace SurveyAPI.Controllers
             {
                 if (!AnswerExists(id))
                 {
+                    _logger.LogWarning($"The object dosen´t exists.");
                     return NotFound();
                 }
                 else

@@ -1,7 +1,10 @@
 ﻿#nullable disable
 
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SurveyAPI.DTO;
+using SurveyAPI.Helpers;
 using SurveyAPI.Models;
 
 namespace SurveyAPI.Controllers
@@ -11,14 +14,33 @@ namespace SurveyAPI.Controllers
     public class QuestionsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public QuestionsController(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+
+        public QuestionsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
 
+        }
+        // GET
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<QuestionDTO>>> GetQuestion([FromQuery] PaginationDTO paginationDTO)
+        {
+            var queryable = _context.Questions.AsQueryable();
+            await HttpContext.InsertParametersPagninationsInHeader(queryable);
+
+            var question = await queryable.ToArrayAsync(); // välj här hur önskar sortera responsen. Kan va nice med bokstav på missions.
+
+            if (question == null)
+            {
+                return NotFound();
+            }
+
+            return _mapper.Map<List<QuestionDTO>>(question);
         }
         // GET: api/Answers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Question>> GetQuestion(Guid id)
+        public async Task<ActionResult<QuestionDTO>> GetQuestion(Guid id)
         {
             var question = await _context.Questions.FindAsync(id);
 
@@ -27,18 +49,21 @@ namespace SurveyAPI.Controllers
                 return NotFound();
             }
 
-            return question;
+            return _mapper.Map<QuestionDTO>(question); ;
         }
+
 
         // POST: api/Questions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<IActionResult>Post(Question question)
+        public async Task<ActionResult<QuestionDTO>> PostQuestion(QuestionCreationDTO questionCreationDTO)
         {
+
+            var question = _mapper.Map<Question>(questionCreationDTO);
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetQuestion", new { id = question.Id }, question);
+            return Ok();
         }
 
         [HttpPut]

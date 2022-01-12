@@ -51,6 +51,7 @@ namespace SurveyAPI.Controllers
 
             if (mission == null)
             {
+                _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
                 return NotFound();
             }
 
@@ -64,6 +65,7 @@ namespace SurveyAPI.Controllers
         {
             if (id != mission.Id)
             {
+                _logger.LogWarning($"The Id:{id} didn´t match the Id of the object: {mission.Id}");
                 return BadRequest();
             }
 
@@ -77,6 +79,7 @@ namespace SurveyAPI.Controllers
             {
                 if (!MissionExists(id))
                 {
+                    _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
                     return NotFound();
                 }
                 else
@@ -106,6 +109,7 @@ namespace SurveyAPI.Controllers
             var mission = await _context.Missions.FindAsync(id);
             if (mission == null)
             {
+                _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
                 return NotFound();
             }
 
