@@ -4,6 +4,7 @@
     using Microsoft.EntityFrameworkCore;
     using SurveyAPI.APIBehavior;
     using SurveyAPI.Filter;
+    using SurveyAPI.Helpers;
 
     public class Startup
     {
@@ -29,12 +30,14 @@
                 var frontendURL = Configuration.GetValue<string>("frontend_url");
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader();
+                    builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader()
+                    .WithExposedHeaders(new string[] { "totalAmountOfRecords" }); // TODO: LÄS PÅ! 
                 });
             }
             );
 
-            services.AddAutoMapper(typeof(Startup));
+            services.AddAutoMapper(typeof(Startup));  // så jag kan omvandla DTO till models. 
+            services.AddScoped<IFileStorageService, AzureStorageService>();
 
             // Add services to the container.
             services.AddControllers(options =>

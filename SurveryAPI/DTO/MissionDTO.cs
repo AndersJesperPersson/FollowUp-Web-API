@@ -1,23 +1,19 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-
-namespace SurveyAPI.Models
-
+﻿namespace SurveyAPI.DTO
 {
-    public class Mission
+    using SurveyAPI.Models;
+
+    public class MissionDTO
     {
-        [Key]
         public Guid Id { get; set; }
-        [Required]
+
         public string ContactPerson { get; set; }
-        [Required]
+  
         public string CompanyName { get; set; }
         public bool IsActive { get; set; }
-        [Required]
+  
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        [Required]
+  
         public string City { get; set; }
 
         public string Image { get; set; }

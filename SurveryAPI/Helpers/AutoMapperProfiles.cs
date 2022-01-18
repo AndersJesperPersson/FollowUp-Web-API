@@ -11,6 +11,8 @@
         {
             CreateMap<QuestionDTO, Question>().ReverseMap();
             CreateMap<QuestionCreationDTO, Question>();
+            CreateMap<MissionCreationDTO, Mission>();
+            CreateMap<MissionDTO, Mission>().ReverseMap(); 
         }
     }
 }

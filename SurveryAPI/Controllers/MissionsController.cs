@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SurveyAPI.Models;
 using SurveyAPI;
+using SurveyAPI.DTO;
+using AutoMapper;
+using SurveyAPI.Helpers;
 
 namespace SurveyAPI.Controllers
 {
@@ -17,22 +20,38 @@ namespace SurveyAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<MissionsController> _logger;
-        
+        private readonly IMapper _mapper;
+        private readonly IFileStorageService _fileStorageService;
+        private readonly string containerName = "missions";
+
         //using dependicy injections for db and logger.
-        public MissionsController(ApplicationDbContext context, ILogger<MissionsController> logger)
+        public MissionsController(ApplicationDbContext context, ILogger<MissionsController> logger, IMapper imapper,
+            IFileStorageService fileStorageService)
         {
             _context = context;
             _logger = logger;
+            _mapper = imapper;
+            _fileStorageService = fileStorageService;
         }
 
+       
 
         //TODO: Lägg in en begränsning på hur många objekt som hämtas åt gången. Ska inte kunna ta alla. 
         // GET: api/Missions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Mission>>> GetMissons()
+        public async Task<ActionResult<IEnumerable<MissionDTO>>> GetMissons([FromQuery] PaginationDTO paginationDTO)
         {
-            
-            return await _context.Missions.Include("Surveys").Include("Employees").ToListAsync();
+            var queryable = _context.Missions.Include("Surveys").Include("Employees").AsQueryable();
+            await HttpContext.InsertParametersPaginationsInHeader(queryable);
+
+            var mission = await queryable.Paginate(paginationDTO).ToListAsync(); // välj här hur önskar sortera responsen. Kan va nice med bokstav på missions.
+
+            if (mission == null)
+            {
+                return NotFound();
+            }
+
+            return _mapper.Map<List<MissionDTO>>(mission); 
         }
 
         // GET: api/Missions/active
@@ -45,9 +64,9 @@ namespace SurveyAPI.Controllers
 
         // GET: api/Missions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Mission>> GetMission(Guid id)
+        public async Task<ActionResult<MissionDTO>> GetMission(Guid id)
         {
-            var mission = await _context.Missions.FindAsync(id);
+            var mission = await _context.Missions.Include("Surveys").Include("Employees").FirstOrDefaultAsync(x => x.Id == id);
 
             if (mission == null)
             {
@@ -55,7 +74,9 @@ namespace SurveyAPI.Controllers
                 return NotFound();
             }
 
-            return mission;
+            return _mapper.Map<MissionDTO>(mission);
+
+           
         }
 
         // PUT: api/Missions/5
@@ -94,12 +115,22 @@ namespace SurveyAPI.Controllers
         // POST: api/Missions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Mission>> PostMission(Mission mission)
+        public async Task<ActionResult<Mission>> PostMission([FromForm]MissionCreationDTO missionCreationDTO)
         {
+          
+            var mission = _mapper.Map<Mission>(missionCreationDTO);
+            
+            if (missionCreationDTO.Image != null)
+            {
+                mission.Image = await _fileStorageService.SaveFile(containerName, missionCreationDTO.Image);
+            }
+
+            mission.StartDate = DateTime.Now;
+
             _context.Missions.Add(mission);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMission", new { id = mission.Id }, mission);
+            return Ok();
         }
 
         // DELETE: api/Missions/5

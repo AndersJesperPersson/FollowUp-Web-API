@@ -27,9 +27,9 @@ namespace SurveyAPI.Controllers
         public async Task<ActionResult<IEnumerable<QuestionDTO>>> GetQuestion([FromQuery] PaginationDTO paginationDTO)
         {
             var queryable = _context.Questions.AsQueryable();
-            await HttpContext.InsertParametersPagninationsInHeader(queryable);
+            await HttpContext.InsertParametersPaginationsInHeader(queryable); // välj hur många items responsen blir
 
-            var question = await queryable.ToArrayAsync(); // välj här hur önskar sortera responsen. Kan va nice med bokstav på missions.
+            var question = await queryable.Paginate(paginationDTO).ToListAsync(); // välj här hur önskar sortera responsen. Kan va nice med bokstav på missions.
 
             if (question == null)
             {
@@ -49,13 +49,13 @@ namespace SurveyAPI.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<QuestionDTO>(question); ;
+            return _mapper.Map<QuestionDTO>(question);
         }
 
 
         // POST: api/Questions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost()]
         public async Task<ActionResult<QuestionDTO>> PostQuestion(QuestionCreationDTO questionCreationDTO)
         {
 
@@ -66,13 +66,16 @@ namespace SurveyAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Put(Guid id, Question question)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(Guid id, [FromBody] QuestionCreationDTO questionCreationDTO)
         {
-            if (id != question.Id)
+            var question = await _context.Questions.FindAsync(id);
+            
+            if(question == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+            question = _mapper.Map(questionCreationDTO, question); 
 
             _context.Entry(question).State = EntityState.Modified;
 
@@ -94,6 +97,23 @@ namespace SurveyAPI.Controllers
 
             return Ok();
 
+        }
+
+        // DELETE: api/Question
+        [HttpDelete("{id:Guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var question = await _context.Questions.FindAsync(id);
+            if (question == null)
+            {
+           
+                return NotFound();
+            }
+
+            _context.Questions.Remove(question);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool QuestionExists(Guid id)

@@ -5,7 +5,7 @@
     public static class HttpContextExtensions
     {
         //TODO: step through DEbugga för att förstå detta
-        public async static Task InsertParametersPagninationsInHeader<T>(this HttpContext context, IQueryable<T> queryable)
+        public async static Task InsertParametersPaginationsInHeader<T>(this HttpContext context, IQueryable<T> queryable)
         {
             if(context == null) { throw new ArgumentNullException(nameof(context)); }
 

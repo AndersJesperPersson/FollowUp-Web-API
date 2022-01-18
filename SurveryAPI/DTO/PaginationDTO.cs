@@ -8,7 +8,7 @@
         private readonly int maxRecordsPerPage = 50;
 
 
-        // make sure the client cant get more then recordsPerPage (10 right now)
+        // make sure the client can´t get more then recordsPerPage (10 right now)
         public int RecordsPerPage
         {
             get { return recordsPerPage; }
