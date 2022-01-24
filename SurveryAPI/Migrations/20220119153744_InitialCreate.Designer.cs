@@ -12,8 +12,8 @@ using SurveyAPI;
 namespace SurveyAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220117095304_initicalcreate")]
-    partial class initicalcreate
+    [Migration("20220119153744_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -30,9 +30,6 @@ namespace SurveyAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AnswerId")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
@@ -40,14 +37,9 @@ namespace SurveyAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("SurveyId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionId");
-
-                    b.HasIndex("SurveyId");
 
                     b.ToTable("Answers");
                 });
@@ -62,12 +54,7 @@ namespace SurveyAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("MissionId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("MissionId");
 
                     b.ToTable("Employees");
                 });
@@ -108,6 +95,36 @@ namespace SurveyAPI.Migrations
                     b.ToTable("Missions");
                 });
 
+            modelBuilder.Entity("SurveyAPI.Models.MissionEmployees", b =>
+                {
+                    b.Property<Guid>("MissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MissionId", "EmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("MissionEmployees");
+                });
+
+            modelBuilder.Entity("SurveyAPI.Models.MissionSurveys", b =>
+                {
+                    b.Property<Guid>("MissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MissionId", "SurveyId");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("MissionSurveys");
+                });
+
             modelBuilder.Entity("SurveyAPI.Models.Question", b =>
                 {
                     b.Property<Guid>("Id")
@@ -116,22 +133,17 @@ namespace SurveyAPI.Migrations
 
                     b.Property<string>("Item")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid?>("SurveyId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SurveyId");
 
                     b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("SurveyAPI.Models.Survey", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SurveyId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -141,14 +153,42 @@ namespace SurveyAPI.Migrations
                     b.Property<bool>("IsSent")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("MissionId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("sendDate")
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("MissionId");
+                    b.HasKey("SurveyId");
 
                     b.ToTable("Surveys");
+                });
+
+            modelBuilder.Entity("SurveyAPI.Models.SurveysAnswers", b =>
+                {
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AnswerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SurveyId", "AnswerId");
+
+                    b.HasIndex("AnswerId");
+
+                    b.ToTable("SurveysAnswers");
+                });
+
+            modelBuilder.Entity("SurveyAPI.Models.SurveysQuestions", b =>
+                {
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SurveyId", "QuestionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("SurveysQuestions");
                 });
 
             modelBuilder.Entity("SurveyAPI.Models.User", b =>
@@ -199,46 +239,97 @@ namespace SurveyAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SurveyAPI.Models.Survey", null)
-                        .WithMany("Answers")
-                        .HasForeignKey("SurveyId");
-
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("SurveyAPI.Models.Employee", b =>
+            modelBuilder.Entity("SurveyAPI.Models.MissionEmployees", b =>
                 {
-                    b.HasOne("SurveyAPI.Models.Mission", null)
-                        .WithMany("Employees")
-                        .HasForeignKey("MissionId");
+                    b.HasOne("SurveyAPI.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SurveyAPI.Models.Mission", "Mission")
+                        .WithMany("MissionEmployees")
+                        .HasForeignKey("MissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Mission");
                 });
 
-            modelBuilder.Entity("SurveyAPI.Models.Question", b =>
+            modelBuilder.Entity("SurveyAPI.Models.MissionSurveys", b =>
                 {
-                    b.HasOne("SurveyAPI.Models.Survey", null)
-                        .WithMany("Questions")
-                        .HasForeignKey("SurveyId");
+                    b.HasOne("SurveyAPI.Models.Mission", "Mission")
+                        .WithMany("MissionSurveys")
+                        .HasForeignKey("MissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SurveyAPI.Models.Survey", "Survey")
+                        .WithMany()
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mission");
+
+                    b.Navigation("Survey");
                 });
 
-            modelBuilder.Entity("SurveyAPI.Models.Survey", b =>
+            modelBuilder.Entity("SurveyAPI.Models.SurveysAnswers", b =>
                 {
-                    b.HasOne("SurveyAPI.Models.Mission", null)
-                        .WithMany("Surveys")
-                        .HasForeignKey("MissionId");
+                    b.HasOne("SurveyAPI.Models.Answer", "Answer")
+                        .WithMany()
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SurveyAPI.Models.Survey", "Survey")
+                        .WithMany("SurveysAnswers")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Answer");
+
+                    b.Navigation("Survey");
+                });
+
+            modelBuilder.Entity("SurveyAPI.Models.SurveysQuestions", b =>
+                {
+                    b.HasOne("SurveyAPI.Models.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SurveyAPI.Models.Survey", "Survey")
+                        .WithMany("SurveysQuestions")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Survey");
                 });
 
             modelBuilder.Entity("SurveyAPI.Models.Mission", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("MissionEmployees");
 
-                    b.Navigation("Surveys");
+                    b.Navigation("MissionSurveys");
                 });
 
             modelBuilder.Entity("SurveyAPI.Models.Survey", b =>
                 {
-                    b.Navigation("Answers");
+                    b.Navigation("SurveysAnswers");
 
-                    b.Navigation("Questions");
+                    b.Navigation("SurveysQuestions");
                 });
 #pragma warning restore 612, 618
         }

@@ -18,5 +18,29 @@
         public DbSet<User> Users { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Employee> Employees { get; set; }
+
+        public DbSet<SurveysQuestions> SurveysQuestions { get; set; }
+        public DbSet<SurveysAnswers> SurveysAnswers { get; set; }
+
+        public DbSet<MissionSurveys> MissionSurveys { get; set; }
+        public DbSet<MissionEmployees> MissionEmployees { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SurveysAnswers>()
+                .HasKey(x => new { x.SurveyId, x.AnswerId });
+
+            modelBuilder.Entity<SurveysQuestions>()
+    .HasKey(x => new { x.SurveyId, x.QuestionId });
+
+            modelBuilder.Entity<MissionSurveys>()
+.HasKey(x => new { x.MissionId, x.SurveyId });
+
+            modelBuilder.Entity<MissionEmployees>()
+.HasKey(x => new { x.MissionId, x.EmployeeId });
+
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

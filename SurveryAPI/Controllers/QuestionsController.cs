@@ -60,6 +60,7 @@ namespace SurveyAPI.Controllers
         {
 
             var question = _mapper.Map<Question>(questionCreationDTO);
+           
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
 

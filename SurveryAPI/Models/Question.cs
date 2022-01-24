@@ -6,8 +6,9 @@
     {
         [Key]
         public Guid Id { get; set; }
-        [StringLength(50, ErrorMessage="Frågan får inte vara längre än 50 tecken")]
+        [StringLength(150, ErrorMessage="Frågan får inte vara längre än 150 tecken")]
         public string Item { get; set; }
+        
 
     }
 }

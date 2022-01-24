@@ -11,8 +11,6 @@
     {
         [Key]
         public Guid Id { get; set; }
-        [Required] // ModelValidation
-        public int AnswerId { get; set; }
         public string Reply { get; set; }
         public Question Question { get; set; }
     }

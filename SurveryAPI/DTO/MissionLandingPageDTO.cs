@@ -1,28 +1,18 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-
-namespace SurveyAPI.Models
-
+﻿namespace SurveyAPI.DTO
 {
-    public class Mission
+    public class MissionLandingPageDTO
     {
-        [Key]
+
+
         public Guid Id { get; set; }
-        [Required]
         public string ContactPerson { get; set; }
-        [Required]
         public string CompanyName { get; set; }
         public bool IsActive { get; set; }
-        [Required]
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        [Required]
         public string City { get; set; }
-
         public string Image { get; set; }
-        public List<MissionSurveys> MissionSurveys { get; set; }
-        public List<MissionEmployees> MissionEmployees { get; set; }
 
     }
 }

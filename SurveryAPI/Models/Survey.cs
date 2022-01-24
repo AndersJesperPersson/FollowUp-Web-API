@@ -4,12 +4,16 @@
 
     public class Survey
     {
-        [Key]
-        public Guid Id { get; set; }
-        public List<Question> Questions { get; set; }
-        public List<Answer> Answers { get; set; }
+       
+        public Guid SurveyId { get; set; }
+
         public DateTime Created { get; set; }
+
+        public DateTime sendDate { get; set; }
         public bool IsSent { get; set; }
+
+        public List<SurveysQuestions> SurveysQuestions { get; set; }
+        public List<SurveysAnswers> SurveysAnswers { get; set; }
 
     }
 }

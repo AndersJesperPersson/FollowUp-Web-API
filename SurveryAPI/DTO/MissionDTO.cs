@@ -1,5 +1,7 @@
 ﻿namespace SurveyAPI.DTO
 {
+    using Microsoft.AspNetCore.Mvc;
+    using SurveyAPI.Helpers;
     using SurveyAPI.Models;
 
     public class MissionDTO
@@ -17,7 +19,8 @@
         public string City { get; set; }
 
         public string Image { get; set; }
-        public List<Survey> Surveys { get; set; }
-        public List<Employee> Employees { get; set; }
+
+        public List<EmployeeDTO>? Employees { get; set; }
+        public List<SurveyDTO>? Surveys { get; set; }
     }
 }

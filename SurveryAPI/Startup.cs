@@ -2,17 +2,23 @@
 {
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.EntityFrameworkCore;
+    using Quartz;
+    using Quartz.Impl;
     using SurveyAPI.APIBehavior;
     using SurveyAPI.Filter;
     using SurveyAPI.Helpers;
+    using System.Collections.Specialized;
+    using System.Net;
+    using System.Net.Mail;
 
     public class Startup
     {
-       
+       private IScheduler _scheduler;
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            _scheduler = ConfigureQuartz();
         }
 
         public IConfiguration Configuration { get; }
@@ -50,6 +56,25 @@
            services.AddLogging();
            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
+            var from = Configuration.GetSection("Mail")["From"];                      // config sender host. 
+            var gmailSender = Configuration.GetSection("Gmail")["Sender"];
+            var password = Configuration.GetSection("Gmail")["Password"];
+            var port = Convert.ToInt32(Configuration.GetSection("Gmail")["Port"]);
+
+            services.AddFluentEmail(gmailSender, from)
+                .AddRazorRenderer()
+                .AddSmtpSender(new SmtpClient("smtp.gmail.com")
+                {
+                    UseDefaultCredentials = false,
+                    Port = port,
+                    Credentials = new NetworkCredential(gmailSender, password),
+                    EnableSsl = true
+                });
+
+            services.AddScoped<IMailSender, MailSender>();
+
+            services.AddSingleton(provider => _scheduler);
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -75,6 +100,21 @@
             endpoints.MapControllers();
               });
         }
+        public IScheduler ConfigureQuartz()
+        {
+            NameValueCollection props = new()
+            {
+                {
+                    "quartz.serializer.type",
+                    "binary"
+                },
+            };
+            StdSchedulerFactory factory = new StdSchedulerFactory(props);
+            var scheduler = factory.GetScheduler().Result;
+            scheduler.Start().Wait();
 
+            return scheduler;
+            
+        }
     }
 }

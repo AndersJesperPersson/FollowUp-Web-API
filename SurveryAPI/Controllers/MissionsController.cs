@@ -39,9 +39,9 @@ namespace SurveyAPI.Controllers
         //TODO: Lägg in en begränsning på hur många objekt som hämtas åt gången. Ska inte kunna ta alla. 
         // GET: api/Missions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MissionDTO>>> GetMissons([FromQuery] PaginationDTO paginationDTO)
+        public async Task<ActionResult<IEnumerable<MissionLandingPageDTO>>> GetMissons([FromQuery] PaginationDTO paginationDTO)
         {
-            var queryable = _context.Missions.Include("Surveys").Include("Employees").AsQueryable();
+            var queryable = _context.Missions.AsQueryable();
             await HttpContext.InsertParametersPaginationsInHeader(queryable);
 
             var mission = await queryable.Paginate(paginationDTO).ToListAsync(); // välj här hur önskar sortera responsen. Kan va nice med bokstav på missions.
@@ -51,8 +51,11 @@ namespace SurveyAPI.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<List<MissionDTO>>(mission); 
+            return _mapper.Map<List<MissionLandingPageDTO>>(mission);
+
+
         }
+
 
         // GET: api/Missions/active
         [HttpGet("active")]
@@ -66,52 +69,47 @@ namespace SurveyAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MissionDTO>> GetMission(Guid id)
         {
-            var mission = await _context.Missions.Include("Surveys").Include("Employees").FirstOrDefaultAsync(x => x.Id == id);
+            var mission = await _context.Missions.Include(x=> x.MissionSurveys).ThenInclude(x=>x.Survey).ThenInclude(x => x.SurveysQuestions).ThenInclude(x => x.Question)
+                .Include(x => x.MissionEmployees).ThenInclude(x => x.Employee)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (mission == null)
+            if (mission is null)
             {
                 _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
                 return NotFound();
             }
 
-            return _mapper.Map<MissionDTO>(mission);
+            var test = _mapper.Map<MissionDTO>(mission);
 
-           
+            return test;
         }
 
         // PUT: api/Missions/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMission(Guid id, Mission mission)
+        public async Task<IActionResult> PutMission(Guid id, [FromForm] MissionCreationDTO missionCreationDTO )
         {
-            if (id != mission.Id)
+            var mission = await _context.Missions.FirstOrDefaultAsync(x => x.Id == id);
+            if(mission is null)
             {
-                _logger.LogWarning($"The Id:{id} didn´t match the Id of the object: {mission.Id}");
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(mission).State = EntityState.Modified;
-
-            try
+            mission = _mapper.Map(missionCreationDTO, mission);
+            if(missionCreationDTO.Image is not null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MissionExists(id))
-                {
-                    _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                mission.Image = await _fileStorageService.EditFile(containerName, 
+                                missionCreationDTO.Image, mission.Image);
             }
 
-            return NoContent();
+            await _context.SaveChangesAsync();
+
+            return Ok();
+
+
         }
 
+        // TODO: KAN BEHÖVAS EN BINDER HÄR PGA FORM FORMATET, INTE MINST NÄR VI SKA TA IN EN LISTA AV SURVEYS MED! 
         // POST: api/Missions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -119,7 +117,7 @@ namespace SurveyAPI.Controllers
         {
           
             var mission = _mapper.Map<Mission>(missionCreationDTO);
-            
+            //TODO: lägg till en default bild här om använd
             if (missionCreationDTO.Image != null)
             {
                 mission.Image = await _fileStorageService.SaveFile(containerName, missionCreationDTO.Image);
