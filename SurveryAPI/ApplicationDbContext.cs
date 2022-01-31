@@ -1,9 +1,10 @@
 ﻿namespace SurveyAPI
 {
+    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
     using SurveyAPI.Models;
 
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
 
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -11,20 +12,6 @@
         {
 
         }
-
-        public DbSet<Survey> Surveys { get; set; }
-        public DbSet<Answer> Answers { get; set; }
-        public DbSet<Mission> Missions { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Question> Questions { get; set; }
-        public DbSet<Employee> Employees { get; set; }
-
-        public DbSet<SurveysQuestions> SurveysQuestions { get; set; }
-        public DbSet<SurveysAnswers> SurveysAnswers { get; set; }
-
-        public DbSet<MissionSurveys> MissionSurveys { get; set; }
-        public DbSet<MissionEmployees> MissionEmployees { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SurveysAnswers>()
@@ -42,5 +29,19 @@
 
             base.OnModelCreating(modelBuilder);
         }
+
+        public DbSet<Survey> Surveys { get; set; }
+        public DbSet<Answer> Answers { get; set; }
+        public DbSet<Mission> Missions { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+
+        public DbSet<SurveysQuestions> SurveysQuestions { get; set; }
+        public DbSet<SurveysAnswers> SurveysAnswers { get; set; }
+
+        public DbSet<MissionSurveys> MissionSurveys { get; set; }
+        public DbSet<MissionEmployees> MissionEmployees { get; set; }
+
     }
 }

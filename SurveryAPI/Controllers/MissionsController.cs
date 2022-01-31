@@ -11,11 +11,15 @@ using SurveyAPI;
 using SurveyAPI.DTO;
 using AutoMapper;
 using SurveyAPI.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace SurveyAPI.Controllers
 {
     [Route("api/missions")]
     [ApiController] // Make sure the parameters are correct. No need to check if model is valid.
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+ 
     public class MissionsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -73,6 +77,8 @@ namespace SurveyAPI.Controllers
                 .Include(x => x.MissionEmployees).ThenInclude(x => x.Employee)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
+            mission.StartDate = mission.StartDate.Date;
+
             if (mission is null)
             {
                 _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
@@ -96,6 +102,7 @@ namespace SurveyAPI.Controllers
             }
 
             mission = _mapper.Map(missionCreationDTO, mission);
+
             if(missionCreationDTO.Image is not null)
             {
                 mission.Image = await _fileStorageService.EditFile(containerName, 

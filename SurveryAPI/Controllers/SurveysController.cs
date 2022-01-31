@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +17,7 @@ namespace SurveyAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class SurveysController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -28,6 +32,7 @@ namespace SurveyAPI.Controllers
 
         // GET: api/Surveys/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<SurveyDTO>> GetSurvey(Guid id)
         {
 

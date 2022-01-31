@@ -1,11 +1,16 @@
 ﻿namespace SurveyAPI.Filter
 {
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Filters;
     using Microsoft.AspNetCore.Mvc.Infrastructure;
 
     public class ParseBadRequest : IActionFilter
     {
+        /// <summary>
+        /// This Filter class is made to collect all errormessage in string array. Makes it easier to display in UI. 
+        /// </summary>
+        /// <param name="context"></param>
         public void OnActionExecuted(ActionExecutedContext context)
         {
             var result = context.Result as IStatusCodeActionResult;
@@ -23,6 +28,14 @@
                 if(badRequestObjectResult.Value is string)
                 {
                     response.Add(badRequestObjectResult.Value.ToString());
+                }
+
+                else if (badRequestObjectResult.Value is IEnumerable<IdentityError> errors) // errors for login. 
+                {
+                    foreach(var error in errors)
+                    {
+                        response.Add(error.Description);
+                    }
                 }
                 else
                 {

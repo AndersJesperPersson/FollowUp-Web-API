@@ -1,27 +1,35 @@
 ﻿namespace SurveyAPI
 {
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IdentityModel.Tokens;
     using Quartz;
     using Quartz.Impl;
     using SurveyAPI.APIBehavior;
     using SurveyAPI.Filter;
     using SurveyAPI.Helpers;
+    using SurveyAPI.Jobs;
     using System.Collections.Specialized;
+    using System.IdentityModel.Tokens.Jwt;
     using System.Net;
     using System.Net.Mail;
+    using System.Text;
 
     public class Startup
     {
-       private IScheduler _scheduler;
+    
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _scheduler = ConfigureQuartz();
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+          
         }
 
         public IConfiguration Configuration { get; }
+
+  
         public void ConfigureServices(IServiceCollection services)
         {
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -33,7 +41,7 @@
 
             services.AddCors(options =>
             {
-                var frontendURL = Configuration.GetValue<string>("frontend_url");
+                var frontendURL = Configuration.GetValue<string>("frontend_url");  // ändra för prodd. 
                 options.AddDefaultPolicy(builder =>
                 {
                     builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader()
@@ -53,8 +61,27 @@
             }).ConfigureApiBehaviorOptions(BadRequestBehavior.Parse);
 
            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Development")));
-           services.AddLogging();
-           services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            services.AddIdentity<IdentityUser, IdentityRole>()               //För authentication....
+                 .AddEntityFrameworkStores<ApplicationDbContext>()
+                 .AddDefaultTokenProviders();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(Configuration["keyjwt"])),
+                ClockSkew = TimeSpan.Zero
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsAdmin", policy => policy.RequireClaim("role","admin"));         // to proctect certain endpoints
+            });
+
+           services.AddLogging();          // ska jag ha loggning? 
 
             var from = Configuration.GetSection("Mail")["From"];                      // config sender host. 
             var gmailSender = Configuration.GetSection("Gmail")["Sender"];
@@ -71,9 +98,32 @@
                     EnableSsl = true
                 });
 
-            services.AddScoped<IMailSender, MailSender>();
+            services.AddTransient<IMailSender, MailSender>();
+            services.AddTransient<AutoMailJob>();
 
-            services.AddSingleton(provider => _scheduler);
+
+            
+
+            services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionScopedJobFactory();
+                var jobkey = new JobKey("sendMail");
+                q.AddJob<AutoMailJob>(options=> options.WithIdentity(jobkey));
+
+                q.AddTrigger(options => options
+                .ForJob(jobkey)
+                .WithIdentity("sendMail-trigger")
+                .WithDailyTimeIntervalSchedule
+                (x=>
+                    x.WithIntervalInHours(12)
+                    .OnEveryDay()
+                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(11,00)
+                )
+                ));
+                  
+            });
+
+            services.AddQuartzHostedService(q=> q.WaitForJobsToComplete = true);
 
         }
 
@@ -86,6 +136,7 @@
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FollowUpAPI v1"));
             }
 
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -99,22 +150,9 @@
             { 
             endpoints.MapControllers();
               });
-        }
-        public IScheduler ConfigureQuartz()
-        {
-            NameValueCollection props = new()
-            {
-                {
-                    "quartz.serializer.type",
-                    "binary"
-                },
-            };
-            StdSchedulerFactory factory = new StdSchedulerFactory(props);
-            var scheduler = factory.GetScheduler().Result;
-            scheduler.Start().Wait();
 
-            return scheduler;
-            
+           
         }
+       
     }
 }

@@ -1,6 +1,8 @@
 ﻿#nullable disable
 
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SurveyAPI.DTO;
@@ -11,6 +13,7 @@ namespace SurveyAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class QuestionsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
