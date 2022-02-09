@@ -12,6 +12,11 @@
             CreateMap<QuestionDTO, Question>().ReverseMap();
             CreateMap<QuestionCreationDTO, Question>();
 
+            CreateMap<AnswerCreationDTO, Answer>();
+            CreateMap<AnswerDTO, Answer>().ReverseMap();
+            CreateMap<Answer, AnswerAndQuestionDTO>().ReverseMap();
+            
+
             CreateMap<MissionDTO, Mission>().ReverseMap();
             CreateMap<MissionCreationDTO, Mission>()
                 .ForMember(x => x.Image, options => options.Ignore())
@@ -21,12 +26,7 @@
             CreateMap<Mission, MissionDTO>()
                 .ForMember(x => x.Surveys, options => options.MapFrom(MapMissionSurveys))
                 .ForMember(x => x.Employees, options => options.MapFrom(MapMissionEmployees));
-
-
-
-
-
-
+                
 
             CreateMap<SurveyCreationDTO, Survey>()
                 .ForMember(x => x.SurveysQuestions, options => options.MapFrom(MapSurveysQuestions));
@@ -81,18 +81,44 @@
 
                     var questionsresult = new List<QuestionDTO>();
 
-                    foreach (var question in survey.Survey.SurveysQuestions) // Här behöver jad addera answers för att kunna läsa dem
+                    foreach (var question in survey.Survey.SurveysQuestions) 
                     {
                         questionsresult.Add(new QuestionDTO() { Id = question.QuestionId, Item = question.Question.Item });
+                    }
+
+                    var answersResult = new List<AnswerDTO>();
+
+                    foreach (var answer in survey.Survey.SurveysAnswers)
+                    {
+                        answersResult.Add(new AnswerDTO() { Id = answer.AnswerId, Reply = answer.Answer.Reply});
                     }
 
                     result.Add(new SurveyDTO()
                     {
                         SurveyId = survey.SurveyId,
                         Questions = questionsresult,
-
+                        Answers = answersResult
+                        
                     });
+
+
+
+            
+                
                 }
+
+
+         
+
+
+
+
+
+
+
+
+
+
                 return result;
             }
             return result;

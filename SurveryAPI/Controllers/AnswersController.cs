@@ -3,107 +3,90 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SurveyAPI.DTO;
 using SurveyAPI.Models;
 
 namespace SurveyAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/answers")]
     [ApiController]
     public class AnswersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AnswersController> _logger;
-        public AnswersController(ApplicationDbContext context, ILogger<AnswersController> logger)
+        private readonly IMapper _mapper;
+        public AnswersController(ApplicationDbContext context, ILogger<AnswersController> logger, IMapper mapper)
         {
             _context = context;
             _logger = logger;
+            _mapper = mapper;
         }
 
-        // GET: api/Answers
-        //TODO: Minska antalet som ges ut. 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Answer>>> GetAnswers()
-        {
-            _logger.LogInformation("get all answers");
-            return await _context.Answers.ToListAsync();
-        }
 
         // GET: api/Answers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Answer>> GetAnswer(Guid id)
+        public async Task<ActionResult<IEnumerable<Answer>>> GetAnswers(Guid id)
         {
-            var answer = await _context.Answers.FindAsync(id);
+           var survey =   _context.MissionSurveys.FirstOrDefault(x => x.MissionId == id);
+           var answers = _context.SurveysAnswers
+                         .Include(x=> x.Answer)
+                         .ThenInclude(x=> x.Question).
+                          Where(x=>x.SurveyId == survey.SurveyId).Select(x=> x.Answer).ToList();
 
-            if (answer == null)
-            {
-            _logger.LogWarning($"Answer with {id} could not be found.");
-                return NotFound();
-            }
-            return answer;
+
+            
+            return answers.ToList();
         }
 
-        // PUT: api/Answers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAnswer(Guid id, Answer answer)
-        {
-            if (id != answer.Id)
-            {
-                _logger.LogWarning($"The Id:{id} didn´t match the Id of the object: {answer.Id}");
-                return BadRequest();
-            }
 
-            _context.Entry(answer).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AnswerExists(id))
-                {
-                    _logger.LogWarning($"The object dosen´t exists.");
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return Ok();
-        }
 
         // POST: api/Answers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Answer>> PostAnswer(Answer answer)
+        [HttpPost("{id}")]
+        public async Task<ActionResult<Answer>> PostAnswer(Guid Id, [FromBody] List<AnswerCreationDTO> answers)
         {
-            _context.Answers.Add(answer);
-            await _context.SaveChangesAsync();
+            var answerlist = new List<Answer>();
 
-            return CreatedAtAction("GetAnswer", new { id = answer.Id }, answer);
-        }
-
-        // DELETE: api/Answers/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAnswer(Guid id)
-        {
-            var answer = await _context.Answers.FindAsync(id);
-            if (answer == null)
+            foreach(var answersItem in answers)
             {
-                return NotFound();
+                var question = _context.Questions.FirstOrDefault(x => x.Id == answersItem.QuestionID);
+                var answer = new Answer()
+                {
+                    Id = new Guid(),
+                    Reply=answersItem.Reply,
+                    Question = question         
+                }; 
+
+               _context.Add(answer);
+                answerlist.Add(answer);
+             
             }
 
-            _context.Answers.Remove(answer);
-            await _context.SaveChangesAsync();
+            
 
+            var survey = await _context.Surveys.Include(x => x.SurveysAnswers).ThenInclude(x => x.Answer).FirstOrDefaultAsync(x => x.SurveyId == Id);
+
+
+            if (survey is not null)
+            {
+                foreach (var answer in answerlist)
+                {
+                    survey.SurveysAnswers.Add(new SurveysAnswers { SurveyId = survey.SurveyId, AnswerId = answer.Id });
+                    _context.Update(survey);
+
+
+                }
+            }
+
+
+            await _context.SaveChangesAsync();
             return NoContent();
         }
+
 
         private bool AnswerExists(Guid id)
         {

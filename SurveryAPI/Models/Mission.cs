@@ -21,6 +21,8 @@ namespace SurveyAPI.Models
         public string City { get; set; }
 
         public string Image { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
         public List<MissionSurveys> MissionSurveys { get; set; }
         public List<MissionEmployees> MissionEmployees { get; set; }
 

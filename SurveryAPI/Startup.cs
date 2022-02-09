@@ -113,13 +113,20 @@
                 q.AddTrigger(options => options
                 .ForJob(jobkey)
                 .WithIdentity("sendMail-trigger")
-                .WithDailyTimeIntervalSchedule
-                (x=>
-                    x.WithIntervalInHours(12)
-                    .OnEveryDay()
-                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(11,00)
-                )
-                ));
+                       .StartNow()
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(60)
+            .RepeatForever()));
+
+
+
+                //.WithDailyTimeIntervalSchedule
+                //(x=>
+                //    x.WithIntervalInHours(12)
+                //    .OnEveryDay()
+                //    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(11,00)
+                //)
+                //));
                   
             });
 

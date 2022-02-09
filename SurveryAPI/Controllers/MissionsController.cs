@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace SurveyAPI.Controllers
 {
     [Route("api/missions")]
-    [ApiController] // Make sure the parameters are correct. No need to check if model is valid.
+    [ApiController] 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
  
     public class MissionsController : ControllerBase
@@ -40,15 +40,18 @@ namespace SurveyAPI.Controllers
 
        
 
-        //TODO: Lägg in en begränsning på hur många objekt som hämtas åt gången. Ska inte kunna ta alla. 
-        // GET: api/Missions
+       /// <summary>
+       /// Gets the a list of mission. It´s limitated to the nummber that are hardcoded into PaginationDTO. 
+       /// </summary>
+       /// <param name="paginationDTO"></param>
+       /// <returns>A list of basic information about the mission. No questions or emplooyees.</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MissionLandingPageDTO>>> GetMissons([FromQuery] PaginationDTO paginationDTO)
         {
             var queryable = _context.Missions.AsQueryable();
             await HttpContext.InsertParametersPaginationsInHeader(queryable);
 
-            var mission = await queryable.Paginate(paginationDTO).ToListAsync(); // välj här hur önskar sortera responsen. Kan va nice med bokstav på missions.
+            var mission = await queryable.Paginate(paginationDTO).ToListAsync(); // Can change the order of the mission if desirable.
 
             if (mission == null)
             {
@@ -73,25 +76,40 @@ namespace SurveyAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MissionDTO>> GetMission(Guid id)
         {
-            var mission = await _context.Missions.Include(x=> x.MissionSurveys).ThenInclude(x=>x.Survey).ThenInclude(x => x.SurveysQuestions).ThenInclude(x => x.Question)
+            var mission = await _context.Missions.Include(x => x.MissionSurveys).ThenInclude(x => x.Survey).ThenInclude(x => x.SurveysQuestions).ThenInclude(x => x.Question)
+                .Include(x => x.MissionSurveys).ThenInclude(x => x.Survey).ThenInclude(x => x.SurveysAnswers).ThenInclude(x => x.Answer)
                 .Include(x => x.MissionEmployees).ThenInclude(x => x.Employee)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             mission.StartDate = mission.StartDate.Date;
 
+            
+
             if (mission is null)
             {
-                _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
+          
                 return NotFound();
             }
 
-            var test = _mapper.Map<MissionDTO>(mission);
+            var mappedMission = _mapper.Map<MissionDTO>(mission);
 
-            return test;
+            mappedMission.Surveys[0].sendDate = mission.MissionSurveys[0].Survey.sendDate;
+
+            if (mission.MissionSurveys[0].Survey.IsSent) 
+            { 
+                mappedMission.Surveys[0].IsSent = true;
+            }
+
+            return mappedMission;
         }
 
-        // PUT: api/Missions/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Updates the mission and expect the object to come from a form. Alså takes the ID as inparameter. 
+        /// Also updates the image in Azure storage. 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="missionCreationDTO"></param>
+        /// <returns>NotFound if mission dosen´t exist otherwise OK.</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMission(Guid id, [FromForm] MissionCreationDTO missionCreationDTO )
         {
@@ -116,9 +134,12 @@ namespace SurveyAPI.Controllers
 
         }
 
-        // TODO: KAN BEHÖVAS EN BINDER HÄR PGA FORM FORMATET, INTE MINST NÄR VI SKA TA IN EN LISTA AV SURVEYS MED! 
-        // POST: api/Missions
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        /// <summary>
+        /// Create a mission. Expect the object to come from a form
+        /// </summary>
+        /// <param name="missionCreationDTO"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<Mission>> PostMission([FromForm]MissionCreationDTO missionCreationDTO)
         {
@@ -138,14 +159,15 @@ namespace SurveyAPI.Controllers
             return Ok();
         }
 
+
+        // TODO: Ta bort bilder. 
         // DELETE: api/Missions/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMission(Guid id)
         {
             var mission = await _context.Missions.FindAsync(id);
             if (mission == null)
-            {
-                _logger.LogWarning($"The Id:{id} didn´t match the Id of any objects.");
+            { 
                 return NotFound();
             }
 

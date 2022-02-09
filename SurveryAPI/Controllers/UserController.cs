@@ -22,6 +22,14 @@
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Creates a user in db and if suceeded a token is returned to frontend.
+        /// </summary>
+        /// <param name="userCredentials"></param>
+        /// <returns></returns>
+        /// 
+
+
 
         [HttpPost("create")]
         public async Task<ActionResult<AuthenticationResponse>> Create([FromBody] UserCredentials userCredentials)
@@ -39,6 +47,11 @@
             }
         }
 
+        /// <summary>
+        /// Creates a JWT token, that conceal vunerble user data.
+        /// </summary>
+        /// <param name="userCredentials"></param>
+        /// <returns>The token with userinformation and when it´s expired.</returns>
         private async Task<AuthenticationResponse> BuildToken(UserCredentials userCredentials)
         {
             var claims = new List<Claim>()

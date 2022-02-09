@@ -54,9 +54,6 @@ namespace SurveyAPI.Controllers
         public async Task<ActionResult<SurveyCreationDTO>> PostSurvey(SurveyCreationDTO surveyCreationDTO)
         {
             
-
-
-
             var survey = _mapper.Map<Survey>(surveyCreationDTO);
 
             survey.Created = DateTime.Now;
@@ -66,8 +63,10 @@ namespace SurveyAPI.Controllers
 
             if (surveyCreationDTO.missionId is not null)
             {
-                var mission = await _context.Missions.Include(x => x.MissionSurveys).ThenInclude(x => x.Survey).FirstOrDefaultAsync(x => x.Id ==
-                     surveyCreationDTO.missionId);
+                var mission = await _context.Missions
+                    .Include(x => x.MissionSurveys)
+                    .ThenInclude(x => x.Survey)
+                    .FirstOrDefaultAsync(x => x.Id == surveyCreationDTO.missionId);
 
                 if (mission is not null)
                 {

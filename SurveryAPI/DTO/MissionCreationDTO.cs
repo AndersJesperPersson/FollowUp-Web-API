@@ -12,7 +12,9 @@
         public string ContactPerson { get; set; } 
         public string CompanyName { get; set; } 
         public bool IsActive { get; set; }
-      
+        public string Phone { get; set; }
+        public string Email { get; set; }
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         
