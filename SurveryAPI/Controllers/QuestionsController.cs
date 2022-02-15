@@ -71,7 +71,7 @@ namespace SurveyAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutQuestion(Guid id, [FromBody] QuestionCreationDTO questionCreationDTO)
+        public async Task<IActionResult> PutQuestion(Guid id, QuestionCreationDTO questionCreationDTO)
         {
             var question = await _context.Questions.FindAsync(id);
             

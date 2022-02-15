@@ -16,7 +16,7 @@
             _context = context;
             _mailSender = mailSender;
         }
-  
+
         public Task Execute(IJobExecutionContext context)
         {
 
@@ -25,38 +25,42 @@
             //3. Behöver fånga in svaren. 
 
 
-            
-            var surveys = _context.Surveys.Where(x=>x.IsSent == false && x.sendDate.Date == DateTime.Now.Date).ToList();
 
-          
+            var surveys = _context.Surveys.Where(x => x.IsSent == false && x.sendDate.Date == DateTime.Now.Date).ToList();
+
+
             foreach (var survey in surveys)
             {
-                if(survey != null && !survey.IsSent)
+                if (survey != null && !survey.IsSent)
                 {
                     var missionId = _context.MissionSurveys.FirstOrDefault(x => x.SurveyId == survey.SurveyId);
 
                     if (missionId is not null)
                     {
-                        var employees = _context.MissionEmployees.Include(x=> x.Employee).Where(x => x.MissionId == missionId.MissionId);
+                        var employees = _context.MissionEmployees.Include(x => x.Employee).Where(x => x.MissionId == missionId.MissionId);
 
 
                         if (employees.Any())
                         {
-                    foreach(var employee in employees)
-                       _mailSender.SendHtmlGmail(employee.Employee.Email, survey.SurveyId.ToString());
+                            foreach (var employee in employees)
+                            {
+
+                                _mailSender.SendHtmlGmail(employee.Employee.Email, survey.SurveyId.ToString());
+                            }
+
+
+                            survey.IsSent = true;
+                            _context.Surveys.Update(survey);
 
                         }
-
-                        survey.IsSent = true;
-                        _context.Surveys.Update(survey);
                     }
 
 
                 }
-                
+
             }
 
-        
+
             _context.SaveChanges();
 
             return Task.CompletedTask;

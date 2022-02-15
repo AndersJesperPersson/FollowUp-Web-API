@@ -26,20 +26,34 @@ namespace SurveyAPI.Controllers
             _mapper = mapper;
         }
 
-
-        // GET: api/Answers/5
+        
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<Answer>>> GetAnswers(Guid id)
         {
            var survey =   _context.MissionSurveys.FirstOrDefault(x => x.MissionId == id);
-           var answers = _context.SurveysAnswers
-                         .Include(x=> x.Answer)
-                         .ThenInclude(x=> x.Question).
-                          Where(x=>x.SurveyId == survey.SurveyId).Select(x=> x.Answer).ToList();
-
-
             
-            return answers.ToList();
+            return await _context.SurveysAnswers
+                         .Include(x => x.Answer)
+                         .ThenInclude(x => x.Question).
+                          Where(x => x.SurveyId == survey.SurveyId).Select(x => x.Answer).ToListAsync();
+        }
+
+        /// <summary>
+        /// To get all the answers that are connected with the correct survey and question. 
+        /// </summary>
+        /// <param name="id">question id</param>
+        /// <param name="surveyId">survey id</param>
+        /// <returns>List of answers connected to right survey and question</returns>
+        [HttpPost("read/{id}")]
+        public async Task<ActionResult<IEnumerable<Answer>>> GetAnswersRead(Guid id, SurveyIdDTO surveyId)
+        {
+            Guid newSurveyId = Guid.Parse(surveyId.Id);
+
+            return await _context.SurveysAnswers
+                .Include(x => x.Answer).ThenInclude(x => x.Question)
+                .Where(x => x.SurveyId == newSurveyId)
+                .Where(x => x.Answer.Question.Id == id)
+                .Select(x => x.Answer).ToListAsync();
         }
 
 

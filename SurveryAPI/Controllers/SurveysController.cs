@@ -29,14 +29,16 @@ namespace SurveyAPI.Controllers
             _mapper = mapper;
         }
 
-
+        /// <summary>
+        /// To get survey with questions and answers. 
+        /// </summary>
+        /// <param name="id">Of survey.</param>
+        /// <returns>SurveyDTO object that hold list of answers and questions.</returns>
         // GET: api/Surveys/5
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<SurveyDTO>> GetSurvey(Guid id)
         {
-
-
             var survey = await _context.Surveys
                 .Include(x => x.SurveysQuestions).ThenInclude(x=> x.Question)
                 .Include(x => x.SurveysAnswers).ThenInclude(x => x.Answer)
@@ -79,6 +81,16 @@ namespace SurveyAPI.Controllers
 
             return Ok();
         }
+
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<SurveyCreationDTO>> PutSurvey(Guid id, SurveyCreationDTO surveyCreationDTO)
+        {
+
+
+            return Ok();
+        }
+
 
         // DELETE: api/Surveys/5
         [HttpDelete("{id}")]

@@ -28,7 +28,7 @@ namespace SurveyAPI.Controllers
         private readonly IFileStorageService _fileStorageService;
         private readonly string containerName = "missions";
 
-        //using dependicy injections for db and logger.
+       
         public MissionsController(ApplicationDbContext context, ILogger<MissionsController> logger, IMapper imapper,
             IFileStorageService fileStorageService)
         {
@@ -93,9 +93,13 @@ namespace SurveyAPI.Controllers
 
             var mappedMission = _mapper.Map<MissionDTO>(mission);
 
+            if (mappedMission.Surveys.Count > 0)
+            {
             mappedMission.Surveys[0].sendDate = mission.MissionSurveys[0].Survey.sendDate;
+            }
 
-            if (mission.MissionSurveys[0].Survey.IsSent) 
+
+            if (mission.MissionSurveys.Count > 0 && mission.MissionSurveys[0].Survey.IsSent) 
             { 
                 mappedMission.Surveys[0].IsSent = true;
             }
@@ -114,12 +118,15 @@ namespace SurveyAPI.Controllers
         public async Task<IActionResult> PutMission(Guid id, [FromForm] MissionCreationDTO missionCreationDTO )
         {
             var mission = await _context.Missions.FirstOrDefaultAsync(x => x.Id == id);
+            var savedate = mission.StartDate;
             if(mission is null)
             {
                 return NotFound();
             }
 
+         
             mission = _mapper.Map(missionCreationDTO, mission);
+            mission.StartDate = savedate;
 
             if(missionCreationDTO.Image is not null)
             {
@@ -127,6 +134,7 @@ namespace SurveyAPI.Controllers
                                 missionCreationDTO.Image, mission.Image);
             }
 
+           
             await _context.SaveChangesAsync();
 
             return Ok();

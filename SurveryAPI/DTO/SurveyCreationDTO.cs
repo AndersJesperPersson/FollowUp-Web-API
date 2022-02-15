@@ -6,6 +6,7 @@
 
     public class SurveyCreationDTO
     {
+        public Guid? Id { get; set; }   
         public List<Guid> questionIds { get; set; }
         public DateTime sendDate { get; set; }
 

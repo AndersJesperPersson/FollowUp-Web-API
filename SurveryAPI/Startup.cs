@@ -30,6 +30,10 @@
         public IConfiguration Configuration { get; }
 
   
+        // Use this method to add services to the container.
+        // More info read: https://go.microsoft.com/fwlink/?LinkID=398940
+        // 
+        
         public void ConfigureServices(IServiceCollection services)
         {
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -134,6 +138,9 @@
 
         }
 
+
+
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // Configure the HTTP request pipeline.
@@ -143,7 +150,8 @@
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FollowUpAPI v1"));
             }
 
-            
+            //The request handling pipeline is composed as a series of middleware components.
+            //Each component performs operations on an HttpContext and either invokes the next middleware in the pipeline or terminates the request.
             app.UseHttpsRedirection();
 
             app.UseRouting();
