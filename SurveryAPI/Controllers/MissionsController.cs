@@ -29,7 +29,7 @@ namespace SurveyAPI.Controllers
         private readonly string containerName = "missions";
         private readonly string [] ImgArray = new string[]{
                     "https://surveysapi.blob.core.windows.net/missions/60b335f2-6bce-457f-b6a8-844b0e12ede4.jfif",
-                    "https://surveysapi.blob.core.windows.net/missions/0e2e4930-e34c-4918-8630-193c5f3b6eef.jfif",
+                    "https://surveysapi.blob.core.windows.net/missions/f1879a05-e806-4970-a987-aa60769c2b6c.jfif",
                     "https://surveysapi.blob.core.windows.net/missions/a792bbe3-cbd0-4c63-afa8-eba62f0991b3.jfif"};
 
 
