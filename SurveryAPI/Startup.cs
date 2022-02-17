@@ -149,6 +149,8 @@
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FollowUpAPI v1"));
             }
 
+            app.UseDeveloperExceptionPage();
+
             //The request handling pipeline is composed as a series of middleware components.
             //Each component performs operations on an HttpContext and either invokes the next middleware in the pipeline or terminates the request.
             app.UseHttpsRedirection();

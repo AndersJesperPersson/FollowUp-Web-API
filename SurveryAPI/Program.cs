@@ -10,10 +10,16 @@ public class Program
         CreateHostBuilder(args).Build().Run();
     }
     public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
+    Host.CreateDefaultBuilder(args)
         .ConfigureWebHostDefaults(webBuilder =>
         {
- 
             webBuilder.UseStartup<Startup>();
+            webBuilder.ConfigureLogging((ctx, logging) =>
+            {
+                logging.AddEventLog(options =>
+                {
+                    options.SourceName = "MyApp";
+                });
+            });
         });
 }
