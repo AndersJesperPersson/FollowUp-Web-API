@@ -62,7 +62,7 @@
                 options.Filters.Add(typeof(ParseBadRequest));  // Adding my BadRequest handler.
             }).ConfigureApiBehaviorOptions(BadRequestBehavior.Parse);
 
-           services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+           services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ProductionConnection")));
             services.AddIdentity<IdentityUser, IdentityRole>()              
                  .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
@@ -115,18 +115,22 @@
                 q.AddTrigger(options => options
                 .ForJob(jobkey)
                 .WithIdentity("sendMail-trigger")
-                       .StartNow()
-        .WithSimpleSchedule(x => x
-            .WithIntervalInSeconds(120)
-            .RepeatForever()));
+                       .WithDailyTimeIntervalSchedule
+                       (x =>
+                           x.WithIntervalInHours(12)
+                           .OnEveryDay()
+                           .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(11, 00)
+                       )
+                       ));
 
-                //.WithDailyTimeIntervalSchedule
-                //(x=>
-                //    x.WithIntervalInHours(12)
-                //    .OnEveryDay()
-                //    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(11,00)
-                //)
-                //));
+
+
+        //               .StartNow()
+        //.WithSimpleSchedule(x => x
+        //    .WithIntervalInSeconds(120)
+        //    .RepeatForever()));
+
+
                   
             });
 
