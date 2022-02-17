@@ -19,8 +19,12 @@ namespace SurveyAPI.Models
         public DateTime EndDate { get; set; }
         [Required]
         public string City { get; set; }
-        public List<Survey> Survey { get; set; }
-        [Required]
-        public List<Employee> Employees { get; set; }
+
+        public string Image { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public List<MissionSurveys> MissionSurveys { get; set; }
+        public List<MissionEmployees> MissionEmployees { get; set; }
+
     }
 }
