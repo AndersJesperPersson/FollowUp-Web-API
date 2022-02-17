@@ -12,6 +12,11 @@
         {
 
         }
+
+        /// <summary>
+        /// To indicate that the models/Entity has a PK that is composed by the following data after HasKey. 
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SurveysAnswers>()

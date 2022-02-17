@@ -29,11 +29,10 @@
 
         public IConfiguration Configuration { get; }
 
-  
+ 
         // Use this method to add services to the container.
         // More info read: https://go.microsoft.com/fwlink/?LinkID=398940
-        // 
-        
+       
         public void ConfigureServices(IServiceCollection services)
         {
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -45,27 +44,26 @@
 
             services.AddCors(options =>
             {
-                var frontendURL = Configuration.GetValue<string>("frontend_url");  // ändra för prodd. 
+                var frontendURL = Configuration.GetValue<string>("frontend_url");  // To accept from what url request will be made.  
                 options.AddDefaultPolicy(builder =>
                 {
                     builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader()
-                    .WithExposedHeaders(new string[] { "totalAmountOfRecords" }); // TODO: LÄS PÅ! 
+                    .WithExposedHeaders(new string[] { "totalAmountOfRecords" });  // to allow the pagination set up. 
                 });
             }
             );
 
-            services.AddAutoMapper(typeof(Startup));  // så jag kan omvandla DTO till models. 
+            services.AddAutoMapper(typeof(Startup));  // this service enable the function to automap DTO to Models and reverse. 
             services.AddScoped<IFileStorageService, AzureStorageService>();
 
-            // Add services to the container.
+           
             services.AddControllers(options =>
             {
-                options.Filters.Add(typeof(MyExceptionsFilter));
                 options.Filters.Add(typeof(ParseBadRequest));  // Adding my BadRequest handler.
             }).ConfigureApiBehaviorOptions(BadRequestBehavior.Parse);
 
-           services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Development")));
-            services.AddIdentity<IdentityUser, IdentityRole>()               //För authentication....
+           services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddIdentity<IdentityUser, IdentityRole>()              
                  .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -82,10 +80,10 @@
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("IsAdmin", policy => policy.RequireClaim("role","admin"));         // to proctect certain endpoints
+                options.AddPolicy("IsAdmin", policy => policy.RequireClaim("role","admin"));      // to proctect certain endpoints
             });
 
-           services.AddLogging();          // ska jag ha loggning? 
+           services.AddLogging();          
 
             var from = Configuration.GetSection("Mail")["From"];                      // config sender host. 
             var gmailSender = Configuration.GetSection("Gmail")["Sender"];
@@ -106,7 +104,7 @@
             services.AddTransient<AutoMailJob>();
 
 
-            
+            //Triggering the job for sending out the mail with the survey. Are set to run every 2 minutes. 
 
             services.AddQuartz(q =>
             {
@@ -119,10 +117,8 @@
                 .WithIdentity("sendMail-trigger")
                        .StartNow()
         .WithSimpleSchedule(x => x
-            .WithIntervalInSeconds(60)
+            .WithIntervalInSeconds(120)
             .RepeatForever()));
-
-
 
                 //.WithDailyTimeIntervalSchedule
                 //(x=>
@@ -139,8 +135,7 @@
         }
 
 
-
-        
+  
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // Configure the HTTP request pipeline.
@@ -161,6 +156,8 @@
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            //Make sure the the controllers are at the last place. 
             app.UseEndpoints(endpoints =>
             { 
             endpoints.MapControllers();

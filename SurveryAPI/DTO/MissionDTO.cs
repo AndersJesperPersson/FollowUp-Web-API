@@ -23,7 +23,10 @@
 
         public string Image { get; set; }
 
+        [ModelBinder(BinderType = typeof(TypeBinder<List<EmployeeDTO>>))]
         public List<EmployeeDTO>? Employees { get; set; }
+
+        [ModelBinder(BinderType = typeof(TypeBinder<List<SurveyDTO>>))]
         public List<SurveyDTO>? Surveys { get; set; }
     }
 }

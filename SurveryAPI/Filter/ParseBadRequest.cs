@@ -8,7 +8,7 @@
     public class ParseBadRequest : IActionFilter
     {
         /// <summary>
-        /// This Filter class is made to collect all errormessage in string array. Makes it easier to display in UI. 
+        /// This action filter class is made to collect all errormessage in string array. Makes it easier to display in UI. 
         /// </summary>
         /// <param name="context"></param>
         public void OnActionExecuted(ActionExecutedContext context)

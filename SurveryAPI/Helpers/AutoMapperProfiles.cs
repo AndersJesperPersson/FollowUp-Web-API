@@ -37,7 +37,8 @@
         }
 
 
-
+// Following methods do the same thing for different objects. They map underlaying objects to correct value so 
+// it´s possible to either work with the object in .net or to send a correct object to front end. 
         private List<EmployeeDTO> MapMissionEmployees(Mission mission, MissionDTO missionDTO)
         {
 
@@ -61,13 +62,6 @@
             return result;
         }
 
-
-        /// <summary>
-        /// Maps in both survey id but also all question data so it can be included in the mission object.
-        /// </summary>
-        /// <param name="mission"></param>
-        /// <param name="missionDTO"></param>
-        /// <returns></returns>
 
         private List<SurveyDTO> MapMissionSurveys(Mission mission, MissionDTO missionDTO)
         {
@@ -99,25 +93,9 @@
                         Questions = questionsresult,
                         Answers = answersResult
                         
-                    });
-
-
-
-            
+                    });    
                 
                 }
-
-
-         
-
-
-
-
-
-
-
-
-
 
                 return result;
             }
@@ -205,21 +183,5 @@ private List<MissionSurveys> MapMissionEmployees(MissionCreationDTO missionCreat
             return result;
         }
 
-        //private List<SurveysAnswers> MapSurveysAnswers(SurveyCreationDTO surveyCreationDTO, Survey survey)
-        //{
-        //    var result = new List<SurveysAnswers>();
-
-        //    if (surveyCreationDTO is null)
-        //    {
-        //        return result;
-        //    }
-
-        //    foreach (var id in surveyCreationDTO.)
-        //    {
-        //        result.Add(new SurveysQuestions() { QuestionId = id });
-        //    }
-
-        //    return result;
-        //}
     }
 }

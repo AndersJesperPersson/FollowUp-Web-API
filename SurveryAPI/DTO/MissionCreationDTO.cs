@@ -17,10 +17,11 @@
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+
         
         public string City { get; set; }
 
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
 
         [ModelBinder(BinderType = typeof(TypeBinder<List<Guid>>))]
         public List<Guid>? EmployeesIds { get; set; } 

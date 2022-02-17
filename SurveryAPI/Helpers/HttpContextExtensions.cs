@@ -4,7 +4,7 @@
 
     public static class HttpContextExtensions
     {
-        //TODO: step through DEbugga för att förstå detta
+        //An extension to httpContext so a number for pagination can be sent in through the header in the http-request from UI. 
         public async static Task InsertParametersPaginationsInHeader<T>(this HttpContext context, IQueryable<T> queryable)
         {
             if(context == null) { throw new ArgumentNullException(nameof(context)); }

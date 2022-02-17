@@ -6,7 +6,10 @@
 
     public class SurveyCreationDTO
     {
-        public Guid? Id { get; set; }   
+        public Guid? Id { get; set; }
+
+        
+        [ModelBinder(BinderType = typeof(TypeBinder<List<Guid>>))]
         public List<Guid> questionIds { get; set; }
         public DateTime sendDate { get; set; }
 

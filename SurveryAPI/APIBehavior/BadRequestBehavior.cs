@@ -2,6 +2,10 @@
 {
     using Microsoft.AspNetCore.Mvc;
 
+
+    /// <summary>
+    /// Overrides APIController attribute so we handle badrequest in a way that works fine with my own created action filter ParseBadRequest. 
+    /// </summary>
     public class BadRequestBehavior
     {
         public static void Parse(ApiBehaviorOptions options)

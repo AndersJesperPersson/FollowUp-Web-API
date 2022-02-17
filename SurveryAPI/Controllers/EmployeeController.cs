@@ -1,6 +1,8 @@
 ﻿namespace SurveyAPI.Controllers
 {
     using AutoMapper;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using SurveyAPI.DTO;
@@ -8,6 +10,7 @@
 
     [Route("api/employee")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class EmployeeController : ControllerBase
     {
 

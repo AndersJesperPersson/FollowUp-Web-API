@@ -12,6 +12,13 @@
             connectionString = configuration.GetConnectionString("AzureStorageConnection");
 
         }
+
+        /// <summary>
+        /// Deletes the file at account storage in the azure. 
+        /// </summary>
+        /// <param name="fileRoute">the url of the img</param>
+        /// <param name="containerName">Container name in the cloud.</param>
+        /// <returns></returns>
         public async Task DeleteFile(string fileRoute, string containerName)
         {
 
@@ -27,13 +34,25 @@
 
 
         }
-
+        /// <summary>
+        /// Edit the file at account storage in the azure. 
+        /// </summary>
+        /// <param name="containerName">Container name in the cloud.</param>
+        /// <param name="file">img as a file.</param>
+        /// <param name="fileRoute">the url of the img</param>
+        /// <returns></returns>
         public async Task<string> EditFile(string containerName, IFormFile file, string fileRoute)
         {
             await DeleteFile(fileRoute,containerName);
             return await SaveFile(containerName, file);
         }
 
+        /// <summary>
+        /// Saving the file at account storage in the azure. 
+        /// </summary>
+        /// <param name="containerName">Container name in the cloud</param>
+        /// <param name="file">img as a file.</param>
+        /// <returns></returns>
         public async Task<string> SaveFile(string containerName, IFormFile file)
         {
             var client = new BlobContainerClient(connectionString, containerName);

@@ -5,7 +5,8 @@
     public static class IQueryableExtensions
     {
         /// <summary>
-        /// 
+        /// using a skip for skip several reords so we can return results in batches. 
+        /// Take allows us to only return an x amount of records from our table. 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>

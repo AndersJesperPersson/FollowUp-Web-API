@@ -1,5 +1,8 @@
 ﻿namespace SurveyAPI.DTO
 {
+    using Microsoft.AspNetCore.Mvc;
+    using SurveyAPI.Helpers;
+
     public class SurveyDTO
     {
 
@@ -10,8 +13,9 @@
         public DateTime sendDate { get; set; }
         public bool IsSent { get; set; }
 
+        [ModelBinder(BinderType = typeof(TypeBinder<List<QuestionDTO>>))]
         public List<QuestionDTO> Questions { get; set; }
-
+        [ModelBinder(BinderType = typeof(TypeBinder<List<AnswerDTO>>))]
         public List<AnswerDTO> Answers { get; set; }
 
     }

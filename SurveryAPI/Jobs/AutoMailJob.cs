@@ -17,13 +17,15 @@
             _mailSender = mailSender;
         }
 
+        /// <summary>
+        /// Looks for necessary conditions, such as correct send date and haven´t been sent before.
+        /// Further on it takes out the correct survey ID and affected email-adresses. 
+        /// Then it calls for the sending method. 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Task completed</returns>
         public Task Execute(IJobExecutionContext context)
         {
-
-            //1. Behöver veta vem mailet ska gå ut till. Finns i Mission/Employee
-            //2. Behöver skicka med ett ID som tar dem till rätt adress. 
-            //3. Behöver fånga in svaren. 
-
 
 
             var surveys = _context.Surveys.Where(x => x.IsSent == false && x.sendDate.Date == DateTime.Now.Date).ToList();
