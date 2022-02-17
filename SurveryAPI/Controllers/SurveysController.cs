@@ -2,87 +2,95 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SurveyAPI.DTO;
 using SurveyAPI.Models;
 
 namespace SurveyAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class SurveysController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public SurveysController(ApplicationDbContext context)
+        public SurveysController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        // GET: api/Surveys
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Survey>>> GetSurveys()
-        {
-            return await _context.Surveys.ToListAsync();
-        }
-
+        /// <summary>
+        /// To get survey with questions and answers. 
+        /// </summary>
+        /// <param name="id">Of survey.</param>
+        /// <returns>SurveyDTO object that hold list of answers and questions.</returns>
         // GET: api/Surveys/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Survey>> GetSurvey(Guid id)
+        [AllowAnonymous]
+        public async Task<ActionResult<SurveyDTO>> GetSurvey(Guid id)
         {
-            var survey = await _context.Surveys.FindAsync(id);
+            var survey = await _context.Surveys
+                .Include(x => x.SurveysQuestions).ThenInclude(x=> x.Question)
+                .Include(x => x.SurveysAnswers).ThenInclude(x => x.Answer)
+                .FirstOrDefaultAsync(x => x.SurveyId == id);
 
-            if (survey == null)
-            {
-                return NotFound();
-            }
+            var surveyDto = _mapper.Map<SurveyDTO>(survey);
 
-            return survey;
+            return surveyDto ;
         }
 
-        // PUT: api/Surveys/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSurvey(Guid id, Survey survey)
-        {
-            if (id != survey.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(survey).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SurveyExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
 
         // POST: api/Surveys
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Survey>> PostSurvey(Survey survey)
+        public async Task<ActionResult<SurveyCreationDTO>> PostSurvey(SurveyCreationDTO surveyCreationDTO)
         {
-            _context.Surveys.Add(survey);
+            
+            var survey = _mapper.Map<Survey>(surveyCreationDTO);
+
+            survey.Created = DateTime.Now;
+
+            _context.Add(survey);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSurvey", new { id = survey.Id }, survey);
+            if (surveyCreationDTO.missionId is not null)
+            {
+                var mission = await _context.Missions
+                    .Include(x => x.MissionSurveys)
+                    .ThenInclude(x => x.Survey)
+                    .FirstOrDefaultAsync(x => x.Id == surveyCreationDTO.missionId);
+
+                if (mission is not null)
+                {
+                    mission.MissionSurveys.Add(new MissionSurveys{ SurveyId = survey.SurveyId});
+                    _context.Update(mission);
+                    await _context.SaveChangesAsync();
+                }
+
+            }
+
+            return Ok();
         }
+
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<SurveyCreationDTO>> PutSurvey(Guid id, SurveyCreationDTO surveyCreationDTO)
+        {
+
+
+            return Ok();
+        }
+
 
         // DELETE: api/Surveys/5
         [HttpDelete("{id}")]
@@ -102,7 +110,7 @@ namespace SurveyAPI.Controllers
 
         private bool SurveyExists(Guid id)
         {
-            return _context.Surveys.Any(e => e.Id == id);
+            return _context.Surveys.Any(e => e.SurveyId == id);
         }
     }
 }
