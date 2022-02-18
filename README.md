@@ -4,5 +4,5 @@ The final project in my .net studies. I've chosen to develop a software applicat
 _____________________________________________
 Disclaimer
 _____________________________________________
-The project is a learning project and due to that the refactoring of code haven´t been prioritized. Further on, there are some lack of styling in the project beacause I was running out of time. This project is covers the Web API of a full-stack project that are hosted at azure --> https://avonova-follow-up.azurewebsites.net/
+The project is a learning project and due to that the refactoring of code haven´t been prioritized. Further on, there are some lack of styling in the project beacause I was running out of time. This project covers the Web API of a full-stack project that are hosted at azure --> https://avonova-follow-up.azurewebsites.net/
 Please see FollowUpSurveyUI repo that are made in React and using TypeScript. 
