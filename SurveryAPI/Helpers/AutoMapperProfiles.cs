@@ -30,7 +30,7 @@
 
             CreateMap<SurveyCreationDTO, Survey>()
                 .ForMember(x => x.SurveysQuestions, options => options.MapFrom(MapSurveysQuestions));
-            //.ForMember(x=> x.SurveysAnswers, options => options.MapFrom(MapSurveysAnswers))
+            
             CreateMap<Survey, SurveyDTO>()
                 .ForMember(x => x.Questions, options => options.MapFrom(MapSurveysQuestions))
                 .ForMember(x => x.Answers, options => options.MapFrom(MapSurveysAnswers));
@@ -185,3 +185,4 @@ private List<MissionSurveys> MapMissionEmployees(MissionCreationDTO missionCreat
 
     }
 }
+

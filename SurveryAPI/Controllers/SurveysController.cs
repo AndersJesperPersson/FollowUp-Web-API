@@ -40,13 +40,13 @@ namespace SurveyAPI.Controllers
         public async Task<ActionResult<SurveyDTO>> GetSurvey(Guid id)
         {
             var survey = await _context.Surveys
-                .Include(x => x.SurveysQuestions).ThenInclude(x=> x.Question)
+                .Include(x => x.SurveysQuestions).ThenInclude(x => x.Question)
                 .Include(x => x.SurveysAnswers).ThenInclude(x => x.Answer)
                 .FirstOrDefaultAsync(x => x.SurveyId == id);
 
             var surveyDto = _mapper.Map<SurveyDTO>(survey);
 
-            return surveyDto ;
+            return surveyDto;
         }
 
 
@@ -55,7 +55,7 @@ namespace SurveyAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<SurveyCreationDTO>> PostSurvey(SurveyCreationDTO surveyCreationDTO)
         {
-            
+
             var survey = _mapper.Map<Survey>(surveyCreationDTO);
 
             survey.Created = DateTime.Now;
@@ -72,7 +72,7 @@ namespace SurveyAPI.Controllers
 
                 if (mission is not null)
                 {
-                    mission.MissionSurveys.Add(new MissionSurveys{ SurveyId = survey.SurveyId});
+                    mission.MissionSurveys.Add(new MissionSurveys { SurveyId = survey.SurveyId });
                     _context.Update(mission);
                     await _context.SaveChangesAsync();
                 }
@@ -86,6 +86,55 @@ namespace SurveyAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<SurveyCreationDTO>> PutSurvey(Guid id, SurveyCreationDTO surveyCreationDTO)
         {
+
+
+
+            var survey = _context.Surveys
+                .Include(x => x.SurveysQuestions).ThenInclude(x => x.Question)
+                .Include(x => x.SurveysAnswers).ThenInclude(x => x.Answer)
+                .FirstOrDefault(x => x.SurveyId == id);
+
+            var mappedSurvey = _mapper.Map<Survey>(surveyCreationDTO);
+
+
+            foreach (var item in survey.SurveysQuestions)
+            {
+                _context.SurveysQuestions.Remove(item);
+            }
+
+            _context.Add(mappedSurvey);
+            _context.Remove(survey);
+
+            var missionSurvey = await _context.MissionSurveys.FirstOrDefaultAsync(x => x.SurveyId == survey.SurveyId);
+            _context.MissionSurveys.Remove(missionSurvey);
+
+            var mission = await _context.Missions
+             .Include(x => x.MissionSurveys)
+            .ThenInclude(x => x.Survey)
+             .FirstOrDefaultAsync(x => x.Id == missionSurvey.MissionId);
+
+            mission.MissionSurveys.Add(new MissionSurveys { SurveyId = mappedSurvey.SurveyId });
+            _context.Update(mission);
+
+            await _context.SaveChangesAsync();
+
+
+
+      
+
+
+
+
+            //mappedSurvey.Created = DateTime.Now;
+            //mappedSurvey.SurveyId = survey.SurveyId;
+
+            //foreach(var item in mappedSurvey.SurveysQuestions)
+            //{
+            //_context.SurveysQuestions.Update(item);
+            //}
+
+            //_context.Update(mappedSurvey);
+            //await _context.SaveChangesAsync();
 
 
             return Ok();
