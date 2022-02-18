@@ -68,13 +68,36 @@ namespace SurveyAPI.Controllers
         }
 
 
+        /// <summary>
+        /// Makes it possible to do a custom made search. Looks for the mission that contains the query. 
+        /// </summary>
+        /// <param name="query">A letter or more.</param>
+        /// <returns>A list of max 5 objects that contains the query.</returns>
+        [HttpGet("searchByName/{query}")]
+        public async Task<ActionResult<IEnumerable<MissionLandingPageDTO>>> SearchByName(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return new List<MissionLandingPageDTO>();
+            }
+            return await _context.Missions.Where(x => x.CompanyName.Contains(query))
+                .OrderBy(x => x.CompanyName).
+                Select(x => new MissionLandingPageDTO { Id = x.Id, CompanyName = x.CompanyName, City = x.City, ContactPerson = x.ContactPerson, Image = x.Image, IsActive = x.IsActive, StartDate = x.StartDate, EndDate = x.EndDate })
+                .Take(5)
+                .ToListAsync();
 
-       /// <summary>
-       /// Get a specific mission. Includes a lot of data.This part could be refactorated by updating some DTOs. 
-       /// Beacuse of lack of time I´ll leave it like this.
-       /// </summary>
-       /// <param name="id"></param>
-       /// <returns>A mission with survey, questions and answers if existing</returns>
+
+
+        }
+
+
+
+        /// <summary>
+        /// Get a specific mission. Includes a lot of data.This part could be refactorated by updating some DTOs. 
+        /// Beacuse of lack of time I´ll leave it like this.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>A mission with survey, questions and answers if existing</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<MissionDTO>> GetMission(Guid id)
         {
@@ -82,10 +105,7 @@ namespace SurveyAPI.Controllers
                 .Include(x => x.MissionSurveys).ThenInclude(x => x.Survey).ThenInclude(x => x.SurveysAnswers).ThenInclude(x => x.Answer)
                 .Include(x => x.MissionEmployees).ThenInclude(x => x.Employee)
                 .FirstOrDefaultAsync(x => x.Id == id);
-
-            mission.StartDate = mission.StartDate.Date;
-
-            
+      
 
             if (mission is null)
             {
