@@ -18,28 +18,28 @@
 
     public class Startup
     {
-    
+
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-          
+
         }
 
         public IConfiguration Configuration { get; }
 
- 
+
         // Use this method to add services to the container.
         // More info read: https://go.microsoft.com/fwlink/?LinkID=398940
-       
+
         public void ConfigureServices(IServiceCollection services)
         {
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen(c => 
-            { 
-                c.SwaggerDoc("v1", new() { Title = "FollowUpAPI", Version = "v1" }); 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "FollowUpAPI", Version = "v1" });
             });
 
             services.AddCors(options =>
@@ -56,14 +56,14 @@
             services.AddAutoMapper(typeof(Startup));  // this service enable the function to automap DTO to Models and reverse. 
             services.AddScoped<IFileStorageService, AzureStorageService>();
 
-           
+
             services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(ParseBadRequest));  // Adding my BadRequest handler.
             }).ConfigureApiBehaviorOptions(BadRequestBehavior.Parse);
 
-           services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ProductionConnection")));
-            services.AddIdentity<IdentityUser, IdentityRole>()              
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ProductionConnection")));
+            services.AddIdentity<IdentityUser, IdentityRole>()
                  .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -80,10 +80,10 @@
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("IsAdmin", policy => policy.RequireClaim("role","admin"));      // to proctect certain endpoints
+                options.AddPolicy("IsAdmin", policy => policy.RequireClaim("role", "admin"));      // to proctect certain endpoints
             });
 
-           services.AddLogging();          
+            services.AddLogging();
 
             var from = Configuration.GetSection("Mail")["From"];                      // config sender host. 
             var gmailSender = Configuration.GetSection("Gmail")["Sender"];
@@ -110,67 +110,69 @@
             {
                 q.UseMicrosoftDependencyInjectionScopedJobFactory();
                 var jobkey = new JobKey("sendMail");
-                q.AddJob<AutoMailJob>(options=> options.WithIdentity(jobkey));
+                q.AddJob<AutoMailJob>(options => options.WithIdentity(jobkey));
 
                 q.AddTrigger(options => options
                 .ForJob(jobkey)
                 .WithIdentity("sendMail-trigger")
-                       .WithDailyTimeIntervalSchedule
-                       (x =>
-                           x.WithIntervalInHours(12)
-                           .OnEveryDay()
-                           .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(11, 00)
-                       )
-                       ));
+                .StartNow()
+                .WithSimpleSchedule(x => x
+                .WithIntervalInSeconds(120)
+                 .RepeatForever()));
+
+
+        });
 
 
 
-        //               .StartNow()
-        //.WithSimpleSchedule(x => x
-        //    .WithIntervalInSeconds(120)
-        //    .RepeatForever()));
+                       //.WithDailyTimeIntervalSchedule
+                       //(x =>
+                       //    x.WithIntervalInHours(12)
+                       //    .OnEveryDay()
+                       //    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(11, 00)
+                       //)
+                       //));
 
 
-                  
-            });
+
 
             services.AddQuartzHostedService(q=> q.WaitForJobsToComplete = true);
 
         }
 
 
-  
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        // Configure the HTTP request pipeline.
+        if (env.IsDevelopment())
         {
-            // Configure the HTTP request pipeline.
-            if (env.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FollowUpAPI v1"));
-            }
-
-            app.UseDeveloperExceptionPage();
-
-            //The request handling pipeline is composed as a series of middleware components.
-            //Each component performs operations on an HttpContext and either invokes the next middleware in the pipeline or terminates the request.
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseCors();
-
-            app.UseAuthentication();
-
-            app.UseAuthorization();
-
-            //Make sure the the controllers are at the last place. 
-            app.UseEndpoints(endpoints =>
-            { 
-            endpoints.MapControllers();
-              });
-
-           
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FollowUpAPI v1"));
         }
-       
+
+        app.UseDeveloperExceptionPage();
+
+        //The request handling pipeline is composed as a series of middleware components.
+        //Each component performs operations on an HttpContext and either invokes the next middleware in the pipeline or terminates the request.
+        app.UseHttpsRedirection();
+
+        app.UseRouting();
+
+        app.UseCors();
+
+        app.UseAuthentication();
+
+        app.UseAuthorization();
+
+        //Make sure the the controllers are at the last place. 
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+
+
     }
+
+}
 }
