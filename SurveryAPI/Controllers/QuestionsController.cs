@@ -25,7 +25,11 @@ namespace SurveyAPI.Controllers
             _mapper = mapper;
 
         }
-        // GET
+        /// <summary>
+        /// Get all the questions through intervals. To change the respone number, go to PaginationDTO.
+        /// </summary>
+        /// <param name="paginationDTO">The amount of reequested items. There´s a max value.</param>
+        /// <returns>The list of questions.</returns>
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<QuestionDTO>>> GetQuestion([FromQuery] PaginationDTO paginationDTO)
         {
@@ -41,7 +45,11 @@ namespace SurveyAPI.Controllers
 
             return _mapper.Map<List<QuestionDTO>>(question);
         }
-        // GET: api/Answers/5
+        /// <summary>
+        /// Get a question by ID.
+        /// </summary>
+        /// <param name="id">Guid id of the questions. Sends through the url.</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<QuestionDTO>> GetQuestion(Guid id)
         {
@@ -56,8 +64,11 @@ namespace SurveyAPI.Controllers
         }
 
 
-        // POST: api/Questions
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+/// <summary>
+/// Create a new question. 
+/// </summary>
+/// <param name="questionCreationDTO">an object of question. </param>
+/// <returns>200 response.</returns>
         [HttpPost()]
         public async Task<ActionResult<QuestionDTO>> PostQuestion(QuestionCreationDTO questionCreationDTO)
         {
@@ -69,7 +80,12 @@ namespace SurveyAPI.Controllers
 
             return Ok();
         }
-
+        /// <summary>
+        /// Update the question by ID and an question object.
+        /// </summary>
+        /// <param name="id">Guid Id of the question.</param>
+        /// <param name="questionCreationDTO">Object of a question.</param>
+        /// <returns>200 response if successfull</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutQuestion(Guid id, QuestionCreationDTO questionCreationDTO)
         {
@@ -103,7 +119,11 @@ namespace SurveyAPI.Controllers
 
         }
 
-        // DELETE: api/Question
+        /// <summary>
+        /// Delete a Question. 
+        /// </summary>
+        /// <param name="id">Id of the question.</param>
+        /// <returns></returns>
         [HttpDelete("{id:Guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

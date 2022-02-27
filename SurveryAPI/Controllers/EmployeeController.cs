@@ -24,6 +24,12 @@
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Create a new employee. 
+        /// </summary>
+        /// <param name="Id">Mission Id to create the relation.</param>
+        /// <param name="employees">an object of employee.</param>
+        /// <returns></returns>
         [HttpPost("{id}")]
         public async Task<ActionResult<Employee>> PostAnswer(Guid Id, [FromBody] List<EmployeeCreationDTO> employees)
         {

@@ -27,10 +27,6 @@
         /// </summary>
         /// <param name="userCredentials"></param>
         /// <returns></returns>
-        /// 
-
-
-
         [HttpPost("create")]
         public async Task<ActionResult<AuthenticationResponse>> Create([FromBody] UserCredentials userCredentials)
         {
@@ -83,7 +79,11 @@
 
 
         }
-
+        /// <summary>
+        /// Login, checks if user is valid.
+        /// </summary>
+        /// <param name="userCredentials"></param>
+        /// <returns>a JWT token if login was succesfull.</returns>
         [HttpPost("login")]
         public async Task <ActionResult<AuthenticationResponse>> Login(
             [FromBody] UserCredentials userCredentials)

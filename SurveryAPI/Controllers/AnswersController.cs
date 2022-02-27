@@ -26,17 +26,6 @@ namespace SurveyAPI.Controllers
             _mapper = mapper;
         }
 
-        
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Answer>>> GetAnswers(Guid id)
-        {
-           var survey =   _context.MissionSurveys.FirstOrDefault(x => x.MissionId == id);
-            
-            return await _context.SurveysAnswers
-                         .Include(x => x.Answer)
-                         .ThenInclude(x => x.Question).
-                          Where(x => x.SurveyId == survey.SurveyId).Select(x => x.Answer).ToListAsync();
-        }
 
         /// <summary>
         /// To get all the answers that are connected with the correct survey and question. 
@@ -58,8 +47,12 @@ namespace SurveyAPI.Controllers
 
 
 
-        // POST: api/Answers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+/// <summary>
+/// Create a new Answers. Comes in through a list cause the answers is created when answering a survey. 
+/// </summary>
+/// <param name="Id">Survey Id to create the relation between rows in db.</param>
+/// <param name="answers">List of Answers.</param>
+/// <returns></returns>
         [HttpPost("{id}")]
         public async Task<ActionResult<Answer>> PostAnswer(Guid Id, [FromBody] List<AnswerCreationDTO> answers)
         {
@@ -81,7 +74,6 @@ namespace SurveyAPI.Controllers
             }
 
             
-
             var survey = await _context.Surveys.Include(x => x.SurveysAnswers).ThenInclude(x => x.Answer).FirstOrDefaultAsync(x => x.SurveyId == Id);
 
 
