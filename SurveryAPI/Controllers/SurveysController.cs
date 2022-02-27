@@ -50,8 +50,11 @@ namespace SurveyAPI.Controllers
         }
 
 
-        // POST: api/Surveys
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+/// <summary>
+/// Create a survey. Created relation to mission and questions. 
+/// </summary>
+/// <param name="surveyCreationDTO"></param>
+/// <returns>200 response.</returns>
         [HttpPost]
         public async Task<ActionResult<SurveyCreationDTO>> PostSurvey(SurveyCreationDTO surveyCreationDTO)
         {
@@ -82,7 +85,12 @@ namespace SurveyAPI.Controllers
             return Ok();
         }
 
-
+/// <summary>
+/// Updates a survey. Delete the last one and creates a new. 
+/// </summary>
+/// <param name="id"></param>
+/// <param name="surveyCreationDTO"></param>
+/// <returns></returns>
         [HttpPut("{id}")]
         public async Task<ActionResult<SurveyCreationDTO>> PutSurvey(Guid id, SurveyCreationDTO surveyCreationDTO)
         {
@@ -118,44 +126,9 @@ namespace SurveyAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-
-
-      
-
-
-
-
-            //mappedSurvey.Created = DateTime.Now;
-            //mappedSurvey.SurveyId = survey.SurveyId;
-
-            //foreach(var item in mappedSurvey.SurveysQuestions)
-            //{
-            //_context.SurveysQuestions.Update(item);
-            //}
-
-            //_context.Update(mappedSurvey);
-            //await _context.SaveChangesAsync();
-
-
             return Ok();
         }
 
-
-        // DELETE: api/Surveys/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSurvey(Guid id)
-        {
-            var survey = await _context.Surveys.FindAsync(id);
-            if (survey == null)
-            {
-                return NotFound();
-            }
-
-            _context.Surveys.Remove(survey);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
 
         private bool SurveyExists(Guid id)
         {
